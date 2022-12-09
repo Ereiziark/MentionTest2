@@ -5,7 +5,6 @@ namespace Qsl\Mentiontest2;
 use Mention\Kebab\File\FileUtils;
 use Mention\Kebab\File\Exception\FileUtilsOpenException;
 
-
 class CacheFile implements CacheInterface
 {
     private string $baseDir;
@@ -21,7 +20,7 @@ class CacheFile implements CacheInterface
 
         try 
         {
-			$fileContentString = FileUtils::read($this->baseDir . $keyHash);
+			$fileContentString = FileUtils::read($this->baseDir . $keyHash . ".test");
             $fileContent = json_decode($fileContentString, true);
 
 			$isExpired = $fileContent["time"] + $fileContent["expireIn"] > time();
