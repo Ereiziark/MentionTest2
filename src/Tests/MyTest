@@ -1,0 +1,72 @@
+<?php
+
+namespace Qsl\Mentiontest2\Tests;
+
+require_once "./vendor/autoload.php";
+use PHPUnit\Framework\TestCase;
+use Qsl\Mentiontest2\Cache;
+use Qsl\Mentiontest2\CacheMem;
+use Qsl\Mentiontest2\CacheFile;
+use Qsl\Mentiontest2\CacheFile2;
+use Exception;
+
+class MyTest extends TestCase
+{
+    private Cache $cacheMem;
+    private Cache $cacheFile;
+    
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->cacheMem = new Cache(new CacheMem());
+        $this->cacheFile = new Cache(new CacheFile());
+    }
+
+    public function testFileCache(): void
+    {
+        $this->cacheFile->set("key", "value");
+        $this->cacheFile->set("truc", "machin");
+        $this->cacheFile->set("bidule", "chouette");
+        $this->cacheFile->set("C:\Windows\\", "je suis un chemin");
+        $this->cacheFile->set("trucqwnjfviujw    huf@==:", "je suis bizarre");
+        $this->cacheFile->set("array", array("one" => 1, "string", array(1, 2, 3)));
+
+        $keyFile = $this->cacheFile->get("key");
+        $trucFile = $this->cacheFile->get("truc");
+        $biduleFile = $this->cacheFile->get("bidule");
+        $windowsFile =  $this->cacheFile->get("C:\Windows\\");
+        $longFile = $this->cacheFile->get("trucqwnjfviujw    huf@==:");
+        $arrayFile = $this->cacheFile->get("array");
+
+
+        self::assertSame($keyFile, "value");
+        self::assertSame($windowsFile, "je suis un chemin");
+        self::assertSame($biduleFile, "chouette");
+        self::assertSame($trucFile, "machin");
+        self::assertSame($longFile, "je suis bizarre");
+        self::assertSame($arrayFile, array("one" => 1, "string", array(1, 2, 3)));
+    }
+
+    public function testMemCache(): void
+    {
+        $this->cacheMem->set("C:\Windows\\", "je suis un chemin");
+        $this->cacheMem->set("key", "value");
+        $this->cacheMem->set("truc", "machin");
+        $this->cacheMem->set("bidule", "chouette");
+        $this->cacheMem->set("trucqwnjfviujw    huf@==:", "je suis bizarre");
+
+        $windowsMem = $this->cacheMem->get("C:\Windows\\");
+        $keyMem = $this->cacheMem->get("key");
+        $trucMem = $this->cacheMem->get("truc");
+        $biduleMem = $this->cacheMem->get("bidule");
+        $longMem = $this->cacheMem->get("trucqwnjfviujw    huf@==:");
+
+        
+        self::assertSame($keyMem, "value");
+        self::assertSame($windowsMem, "je suis un chemin");
+        self::assertSame($biduleMem, "chouette");
+        self::assertSame($trucMem, "machin");
+        self::assertSame($longMem, "je suis bizarre");
+    }
+}
